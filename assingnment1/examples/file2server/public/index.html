@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Transfer Files With Socket.IO and Node.js</title>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+  <script src="/js/delivery.js"></script>
+  <link rel="stylesheet" type="text/css" href="">
+</head>
+<body>
+  <div id="wrapper">
+    <h1>Select a File to Upload!</h1>
+    <form>
+      <input type="file">
+      <input type="submit" value="Upload File">
+    </form>
+    <div id="outcome"></div>
+  </div>
+  <img src="" id="sandy">
+  <script>
+    $(function(){
+  var socket = io.connect();
+  socket.on('addImage',function(from,base64image){
+     console.log('here the', from , base64image);
+     $('#sandy').attr('src', base64image);
+  });
+  
+  socket.on('connect', function(){
+    var delivery = new Delivery(socket);
+
+    delivery.on('delivery.connect',function(delivery){
+      $("input[type=submit]").click(function(evt){
+        var file = $("input[type=file]")[0].files[0];
+        delivery.send(file);
+        evt.preventDefault();
+      });
+    });
+
+    delivery.on('send.success',function(fileUID){
+      console.log("file was successfully sent.");
+    });
+  });
+});
+  </script>
+</body>
+</html>
